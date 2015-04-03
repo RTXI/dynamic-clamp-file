@@ -1,29 +1,27 @@
-PLUGIN_NAME = dynamic_clamp_file
+PLUGIN_NAME = DClampFile
 
-RTXI_INCLUDES=/usr/local/lib/rtxi_includes
+HEADERS = DClampFile.h\
+          include/basicplot.h\
+          include/incrementalplot.h\
+          include/scatterplot.h\
+          include/scrollbar.h\
+          include/scrollzoomer.h\
+          include/plotdialog.h\
 
-HEADERS = dynamic-clamp-file.h\
-          $(RTXI_INCLUDES)/scatterplot.h\
-          $(RTXI_INCLUDES)/incrementalplot.h\
-          $(RTXI_INCLUDES)/basicplot.h\
-          $(RTXI_INCLUDES)/scrollzoomer.h\
-          $(RTXI_INCLUDES)/scrollbar.h\
-          $(RTXI_INCLUDES)/plotdialog.h\
-
-SOURCES = dynamic-clamp-file.cpp \
-          moc_dynamic-clamp-file.cpp\
-          $(RTXI_INCLUDES)/scatterplot.cpp\
-          $(RTXI_INCLUDES)/incrementalplot.cpp\
-          $(RTXI_INCLUDES)/basicplot.cpp\
-          $(RTXI_INCLUDES)/scrollzoomer.cpp\
-          $(RTXI_INCLUDES)/scrollbar.cpp\
-          $(RTXI_INCLUDES)/plotdialog.cpp\
-          $(RTXI_INCLUDES)/moc_scatterplot.cpp\
-          $(RTXI_INCLUDES)/moc_incrementalplot.cpp\
-          $(RTXI_INCLUDES)/moc_basicplot.cpp\
-          $(RTXI_INCLUDES)/moc_scrollzoomer.cpp\
-          $(RTXI_INCLUDES)/moc_scrollbar.cpp\
-          $(RTXI_INCLUDES)/moc_plotdialog.cpp\
+SOURCES = DClampFile.cpp \
+          moc_DClampFile.cpp\
+          include/basicplot.cpp\
+          include/scatterplot.cpp\
+          include/incrementalplot.cpp\
+          include/scrollbar.cpp\
+          include/scrollzoomer.cpp\
+          include/plotdialog.cpp\
+          include/moc_scatterplot.cpp\
+          include/moc_incrementalplot.cpp\
+          include/moc_scrollbar.cpp\
+          include/moc_scrollzoomer.cpp\
+          include/moc_basicplot.cpp\
+          include/moc_plotdialog.cpp
 
 LIBS = -lqwt
 
