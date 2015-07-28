@@ -6,7 +6,7 @@
 ![Module GUI](dynamic-clamp-file.png)
 
 <!--start-->
-This module applies a conductance waveform that has already been saved in ASCII format. It uses the current real-time period to determine the length of the trial, sampling one row from the ASCII file at each time step. If you use it with the SpikeDetect module, you can view a raster plot in real-time of spike times for each trial.
+This module applies a conductance waveform that has already been saved in ASCII format. It uses the current real-time period to determine the length of the trial, sampling one row from the ASCII file at each time step. If you use it with the Spike Detector module, you can view a raster plot in real-time of spike times for each trial. Simply use the connector module to send the command signals from the detector to this module.  
 <!--end-->
 
 ####Input Channels
