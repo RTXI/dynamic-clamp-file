@@ -64,11 +64,11 @@ static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
 // Default constructor
 DClamp::DClamp(void) : DefaultGUIModel("Dynamic Clamp", ::vars, ::num_vars) {
 	setWhatsThis(
-	"<p><b>Dynamic Clamp:</b></p><p>This module applies a conductance waveform that "
-	"has already been saved in ASCII format. It uses the current real-time period to "
-	"determine the length of the trial, sampling one row from the ASCII file at each time step."
-	" If you use it with the SpikeDetect module, you can view a raster plot in real-time of"
-	"spike times for each trial.</p>");
+		"<p><b>Dynamic Clamp:</b></p><p>This module applies a conductance waveform that "
+		"has already been saved in ASCII format. It uses the current real-time period to "
+		"determine the length of the trial, sampling one row from the ASCII file at each time step."
+		" If you use it with the SpikeDetect module, you can view a raster plot in real-time of"
+		"spike times for each trial.</p>");
 	initParameters();
 	createGUI(vars, num_vars); // this is required to create the GUI
 	update(INIT);
@@ -244,13 +244,7 @@ void DClamp::print() {
 	QPrinter printer;
 #else
 	QPrinter printer(QPrinter::HighResolution);
-#if QT_VERSION < 0x040000
-	printer.setOutputToFile(true);
-	printer.setOutputFileName("/tmp/DClamp.ps");
-	printer.setColorMode(QPrinter::Color);
-#else
 	printer.setOutputFileName("/tmp/DClamp.pdf");
-#endif
 #endif
 
 	QString docName = rplot->title().text();
@@ -262,12 +256,8 @@ void DClamp::print() {
 	printer.setCreator("RTXI");
 	printer.setOrientation(QPrinter::Landscape);
 
-#if QT_VERSION >= 0x040000
 	QPrintDialog dialog(&printer);
 	if ( dialog.exec() ) {
-#else
-	if (printer.setup()) {
-#endif
 /*
 		RTXIPrintFilter filter;
 		if (printer.colorMode() == QPrinter::GrayScale) {
@@ -284,23 +274,6 @@ void DClamp::print() {
 void DClamp::exportSVG() {
 	QString fileName = "DClamp.svg";
 
-#if QT_VERSION < 0x040000
-
-#ifndef QT_NO_FILEDIALOG
-	fileName = QFileDialog::getSaveFileName("DClamp.svg", "SVG Documents (*.svg)", this);
-#endif
-	if (!fileName.isEmpty()) {
-		// enable workaround for Qt3 misalignments
-		QwtPainter::setSVGMode(true);
-		QPicture picture;
-		QPainter p(&picture);
-		rplot->print(&p, QRect(0, 0, 800, 600));
-		p.end();
-		picture.save(fileName, "svg");
-	}
-
-#elif QT_VERSION >= 0x040300
-
 #ifdef QT_SVG_LIB
 #ifndef QT_NO_FILEDIALOG
 	fileName = QFileDialog::getSaveFileName(this, "Export File Name", QString(),"SVG Documents (*.svg)");
@@ -311,7 +284,6 @@ void DClamp::exportSVG() {
 		generator.setSize(QSize(800, 600));
 		rplot->print(generator);
 	}
-#endif
 #endif
 }
 
