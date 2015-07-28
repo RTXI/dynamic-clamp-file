@@ -28,21 +28,11 @@
 #include <main_window.h>
 #include <math.h>
 #include <algorithm>
-#include <QtGui>
 #include <QPainter>
-#if QT_VERSION >= 0x040300
-#ifdef QT_SVG_LIB
 #include <QSvgGenerator>
-#endif
-#endif
-#if QT_VERSION >= 0x040000
 #include <QFileInfo>
 #include <QtPrintSupport/QPrintDialog>
 #include <QtPrintSupport/QPrinter>
-#else
-#include <qwt_painter.h>
-#endif
-//#include <qwt-qt3/qwt_array.h>
 #include <sys/stat.h>
 #include <gsl/gsl_fit.h>
 #include <gsl/gsl_math.h>
