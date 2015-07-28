@@ -123,8 +123,8 @@ void DClamp::customizeGUI(void) {
 	QCheckBox *plotCheckBox = new QCheckBox("Raster Plot");
 	optionRow1->addWidget(plotCheckBox);
 	plotCheckBox->setChecked(true);
-	QObject::connect(plotCheckBox, SIGNAL(toggled(bool)), rplot, SLOT(setShown(bool)));
-	QObject::connect(plotCheckBox, SIGNAL(toggled(bool)), plotBox, SLOT(setShown(bool)));
+	QObject::connect(plotCheckBox, SIGNAL(toggled(bool)), rplot, SLOT(setVisible(bool)));
+	QObject::connect(plotCheckBox, SIGNAL(toggled(bool)), plotBox, SLOT(setVisible(bool)));
 	QObject::connect(plotCheckBox, SIGNAL(toggled(bool)), this, SLOT(togglePlot(bool)));
 	plotCheckBox->setToolTip("Show/Hide raster plot");
 	customLayout->addWidget(optionBox, 2, 0);
