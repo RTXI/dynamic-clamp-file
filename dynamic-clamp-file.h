@@ -27,7 +27,6 @@
 #include <plotdialog.h>
 #include <basicplot.h>
 //#include <RTXIprintfilter.h>
-#include <QtGui>
 #include <cstdlib>
 
 class DClamp : public DefaultGUIModel {
