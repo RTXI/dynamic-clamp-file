@@ -32,6 +32,7 @@
 #include <QSvgGenerator>
 #include <QFileInfo>
 #include <QPrintDialog>
+#include <QPrinter>
 //#include <QtPrintSupport/QPrintDialog>
 //#include <QtPrintSupport/QPrinter>
 #include <sys/stat.h>
