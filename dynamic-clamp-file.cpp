@@ -31,9 +31,8 @@
 #include <QPainter>
 #include <QSvgGenerator>
 #include <QFileInfo>
-#include <QPrintDialog>
-//#include <QtPrintSupport/QPrintDialog>
-//#include <QtPrintSupport/QPrinter>
+#include <QtPrintSupport/QPrintDialog>
+#include <QtPrintSupport/QPrinter>
 #include <sys/stat.h>
 #include <gsl/gsl_fit.h>
 #include <gsl/gsl_math.h>
