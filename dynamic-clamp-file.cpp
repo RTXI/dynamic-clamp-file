@@ -45,7 +45,7 @@ extern "C" Plugin::Object * createRTXIPlugin(void) {
 // inputs, outputs, parameters for default_gui_model
 static DefaultGUIModel::variable_t vars[] = 
 {
-	{ "Vm (mV)", "Membrane Potential", DClamp::INPUT, },
+	{ "Vm (V)", "Membrane Potential", DClamp::INPUT, },
 	{ "Spike State", "Spike State", DClamp::INPUT, },
 	{ "Command", "Command", DClamp::OUTPUT, },
 	{ "Length (s)", 
@@ -69,7 +69,7 @@ static DefaultGUIModel::variable_t vars[] =
 	  "Current (nA) to inject while waiting between trials", 
 	  DClamp::PARAMETER | DClamp::DOUBLE, 
 	},
-	{ "Repeat", "Number of trials", DClamp::PARAMETER | DClamp::DOUBLE, },
+	{ "Repeat (#)", "Number of trials", DClamp::PARAMETER | DClamp::DOUBLE, },
 	{ "Time (s)", "Time (s)", DClamp::STATE, }, 
 };
 
@@ -160,7 +160,7 @@ void DClamp::customizeGUI(void) {
 DClamp::~DClamp(void) {}
 
 void DClamp::execute(void) {
-	Vm = input(0);
+	Vm = input(0); // V
 	systime = count * dt; // current time, s
 
 	if (plotRaster == true) {
@@ -190,8 +190,8 @@ void DClamp::update(DClamp::update_flags_t flag) {
 		setParameter("Reversal Potential (mV)", QString::number(Erev * 1000)); // convert from V to mV
 		setParameter("Gain", QString::number(gain));
 		setParameter("Wait Time (s)", QString::number(wait));
-		setParameter("Holding Current (nA)", QString::number(Ihold * 1e-9)); // convert from nA to A
-		setParameter("Repeat", QString::number(repeat)); // initially 1
+		setParameter("Holding Current (nA)", QString::number(Ihold * 1e9)); // convert from A to nA
+		setParameter("Repeat (#)", QString::number(repeat)); // initially 1
 		setState("Time (s)", systime);
 		break;
 
@@ -200,8 +200,8 @@ void DClamp::update(DClamp::update_flags_t flag) {
 		Erev = getParameter("Reversal Potential (mV)").toDouble() / 1000; // convert from mV to V
 		gain = getParameter("Gain").toDouble();
 		wait = getParameter("Wait Time (s)").toDouble();
-		Ihold = getParameter("Holding Current (nA)").toDouble() * 1e9; // convert from A to nA
-		repeat = getParameter("Repeat").toDouble();
+		Ihold = getParameter("Holding Current (nA)").toDouble() * 1e-9; // convert from nA to A
+		repeat = getParameter("Repeat (#)").toDouble();
 		loadFile(gFile);
 		bookkeep();
 		break;
@@ -218,7 +218,7 @@ void DClamp::update(DClamp::update_flags_t flag) {
 
 	case PERIOD:
 		dt = RT::System::getInstance()->getPeriod() * 1e-9;
-		std::cout<<"New real-time period: "<<dt<<std::endl;;
+		std::cout<<"New real-time period (s): "<<dt<<std::endl;;
 		loadFile(gFile);
 		break;
 
@@ -232,10 +232,10 @@ void DClamp::update(DClamp::update_flags_t flag) {
 void DClamp::initParameters() {
 	length = 1; // seconds
 	repeat = 1;
-	Ihold = 0; // Amps
+	Ihold = 0; // Amps, displayed in UI as nA
 	wait = 1; // seconds
 	gain = 1;
-	Erev = -.070; // V
+	Erev = -.070; // V, displayed in UI as mV
 	dt = RT::System::getInstance()->getPeriod() * 1e-9; // s
 	yrangemin = 0;
 	yrangemax = 10;
