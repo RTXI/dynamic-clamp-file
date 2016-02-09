@@ -17,9 +17,11 @@
  */
 
 /*
- * DClampFile applies a conductance waveform that has already been saved in ASCII format. It uses the current
- * real-time period to determine the length of the trial, sampling one row from the ASCII file at each time step.
- * If you use it with the SpikeDetect module, you can view a raster plot in real-time of spike times for each trial.
+ * DClampFile applies a conductance waveform that has already been saved in 
+ * ASCII format. It uses the current real-time period to determine the length 
+ * of the trial, sampling one row from the ASCII file at each time step. If 
+ * you use it with the SpikeDetect module, you can view a raster plot in 
+ * real-time of spike times for each trial.
  */
 
 #include <dynamic-clamp-file.h>
@@ -28,13 +30,19 @@
 #include <main_window.h>
 #include <math.h>
 #include <algorithm>
+
 #include <QPainter>
 #include <QSvgGenerator>
 #include <QFileInfo>
-#include <QPrintDialog>
-#include <QPrinter>
-//#include <QtPrintSupport/QPrintDialog>
-//#include <QtPrintSupport/QPrinter>
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+	#include <QtPrintSupport/QPrintDialog>
+	#include <QtPrintSupport/QPrinter>
+#else
+	#include <QPrintDialog>
+	#include <QPrinter>
+#endif
+
 #include <sys/stat.h>
 #include <gsl/gsl_fit.h>
 #include <gsl/gsl_math.h>
@@ -47,16 +55,31 @@ extern "C" Plugin::Object * createRTXIPlugin(void) {
 // inputs, outputs, parameters for default_gui_model
 static DefaultGUIModel::variable_t vars[] = 
 {
-	{ "Vm (mV)", "Membrane Potential", DClamp::INPUT, },
+	{ "Vm (V)", "Membrane Potential", DClamp::INPUT, },
 	{ "Spike State", "Spike State", DClamp::INPUT, },
 	{ "Command", "Command", DClamp::OUTPUT, },
-	{ "Length (s)", "Length of trial is computed from the real-time period and the size of your conductance waveform file",	DClamp::STATE, },
-	{ "File Name", "ASCII file containing conductance waveform with values in siemens",	DClamp::PARAMETER | DClamp::DOUBLE, },
-	{ "Reversal Potential (mV)", "Reversal Potential (mV) for artificial conductance", DClamp::PARAMETER | DClamp::DOUBLE, },
+	{ "Length (s)", 
+	  "Computed from the real-time period and the number of rows in your conductance waveform file",	
+	  DClamp::STATE, 
+	},
+	{ "File Name", 
+	  "ASCII file containing conductance waveform with values in siemens",	
+	  DClamp::PARAMETER | DClamp::DOUBLE, 
+	},
+	{ "Reversal Potential (mV)", 
+	  "Reversal Potential (mV) for artificial conductance", 
+	  DClamp::PARAMETER | DClamp::DOUBLE, 
+	},
 	{ "Gain", "Gain to multiply conductance values by", DClamp::PARAMETER | DClamp::DOUBLE, },
-	{ "Wait time (s)", "Time to wait between trials of applied artifical conductance", DClamp::PARAMETER | DClamp::DOUBLE, },
-	{ "Holding Current (s)", "Current to inject while waiting between trials", DClamp::PARAMETER | DClamp::DOUBLE, },
-	{ "Repeat", "Number of trials", DClamp::PARAMETER | DClamp::DOUBLE, },
+	{ "Wait Time (s)", 
+	  "Time to wait between trials of applied artifical conductance", 
+	  DClamp::PARAMETER | DClamp::DOUBLE, 
+	},
+	{ "Holding Current (nA)", 
+	  "Current (nA) to inject while waiting between trials", 
+	  DClamp::PARAMETER | DClamp::DOUBLE, 
+	},
+	{ "Repeat (#)", "Number of trials", DClamp::PARAMETER | DClamp::DOUBLE, },
 	{ "Time (s)", "Time (s)", DClamp::STATE, }, 
 };
 
@@ -77,7 +100,7 @@ DClamp::DClamp(void) : DefaultGUIModel("Dynamic Clamp", ::vars, ::num_vars) {
 	customizeGUI();
 	refresh(); // this is required to update the GUI with parameter and state values
 	QTimer::singleShot(0, this, SLOT(resizeMe()));
-	printf("Loaded Dynamic Clamp:\n");
+	std::cout<<"Loaded Dynamic Clamp:"<<std::endl;
 }
 
 void DClamp::customizeGUI(void) {
@@ -138,8 +161,10 @@ void DClamp::customizeGUI(void) {
 	modifyButton->setToolTip("Commit changes to parameter values");
 	unloadButton->setToolTip("Close plugin");
 	
-	QObject::connect(this, SIGNAL(newDataPoint(double,double,QwtSymbol::Style)), rplot, SLOT(appendPoint(double,double,QwtSymbol::Style)));
-	QObject::connect(this, SIGNAL(setPlotRange(double, double, double, double)), rplot, SLOT(setAxes(double, double, double, double)));
+	QObject::connect(this, SIGNAL(newDataPoint(double,double,QwtSymbol::Style)), 
+	                 rplot, SLOT(appendPoint(double,double,QwtSymbol::Style)));
+	QObject::connect(this, SIGNAL(setPlotRange(double, double, double, double)), 
+	                 rplot, SLOT(setAxes(double, double, double, double)));
 
 	setLayout(customLayout);
 }
@@ -147,7 +172,7 @@ void DClamp::customizeGUI(void) {
 DClamp::~DClamp(void) {}
 
 void DClamp::execute(void) {
-	Vm = input(0);
+	Vm = input(0); // V
 	systime = count * dt; // current time, s
 
 	if (plotRaster == true) {
@@ -176,9 +201,9 @@ void DClamp::update(DClamp::update_flags_t flag) {
 		setParameter("File Name", gFile);
 		setParameter("Reversal Potential (mV)", QString::number(Erev * 1000)); // convert from V to mV
 		setParameter("Gain", QString::number(gain));
-		setParameter("Wait time (s)", QString::number(wait));
-		setParameter("Holding Current (s)", QString::number(Ihold * 1e-9)); // convert from A to nA
-		setParameter("Repeat", QString::number(repeat)); // initially 1
+		setParameter("Wait Time (s)", QString::number(wait));
+		setParameter("Holding Current (nA)", QString::number(Ihold * 1e9)); // convert from A to nA
+		setParameter("Repeat (#)", QString::number(repeat)); // initially 1
 		setState("Time (s)", systime);
 		break;
 
@@ -186,26 +211,26 @@ void DClamp::update(DClamp::update_flags_t flag) {
 		gFile = getParameter("File Name");
 		Erev = getParameter("Reversal Potential (mV)").toDouble() / 1000; // convert from mV to V
 		gain = getParameter("Gain").toDouble();
-		wait = getParameter("Wait time (s)").toDouble();
-		Ihold = getParameter("Holding Current (s)").toDouble() * 1e9; // convert from nA to A
-		repeat = getParameter("Repeat").toDouble();
+		wait = getParameter("Wait Time (s)").toDouble();
+		Ihold = getParameter("Holding Current (nA)").toDouble() * 1e-9; // convert from nA to A
+		repeat = getParameter("Repeat (#)").toDouble();
 		loadFile(gFile);
 		bookkeep();
 		break;
 
 	case PAUSE:
 		output(0) = 0; // stop command in case pause occurs in the middle of command
-		printf("Protocol paused.\n");
+		std::cout<<"Protocol paused."<<std::endl;
 		break;
 
 	case UNPAUSE:
 		bookkeep();
-		printf("Starting protocol.\n");
+		std::cout<<"Starting protocol."<<std::endl;
 		break;
 
 	case PERIOD:
 		dt = RT::System::getInstance()->getPeriod() * 1e-9;
-		printf("New real-time period: %f\n", dt);
+		std::cout<<"New real-time period (s): "<<dt<<std::endl;;
 		loadFile(gFile);
 		break;
 
@@ -219,10 +244,10 @@ void DClamp::update(DClamp::update_flags_t flag) {
 void DClamp::initParameters() {
 	length = 1; // seconds
 	repeat = 1;
-	Ihold = 0; // Amps
+	Ihold = 0; // Amps, displayed in UI as nA
 	wait = 1; // seconds
 	gain = 1;
-	Erev = -.070; // V
+	Erev = -.070; // V, displayed in UI as mV
 	dt = RT::System::getInstance()->getPeriod() * 1e-9; // s
 	yrangemin = 0;
 	yrangemax = 10;
@@ -301,7 +326,6 @@ void DClamp::loadFile() {
 	QString fileName;
 	if (fd->exec() == QDialog::Accepted) {
 		fileName = (fd->selectedFiles()).takeFirst();
-//		printf("Loading new file: %s\n", fileName.toStdString());
 		std::cout<<"Loading new file: "<<fileName.toStdString()<<std::endl;
 		setParameter("File Name", fileName);
 		wave.clear();
@@ -331,7 +355,6 @@ void DClamp::loadFile(QString fileName) {
 	if (fileName == "No file loaded.") {
 		return;
 	} else {
-//		printf("Loading new file: %s\n", fileName.toStdString());
 		std::cout<<"Loading new file: "<<fileName.toStdString()<<std::endl;
 		wave.clear();
 		QFile file(fileName);
@@ -397,7 +420,6 @@ bool DClamp::OpenFile(QString FName) {
 	}
 	stream.setDevice(&dataFile);
 //	stream.setPrintableData(false); // write binary
-//	printf("File opened: %s\n", FName.toStdString());
 	std::cout<<"File opened: "<<FName.toStdString()<<std::endl;
 	return true;
 }

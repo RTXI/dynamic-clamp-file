@@ -6,7 +6,9 @@
 ![Module GUI](dynamic-clamp-file.png)
 
 <!--start-->
-This module applies a conductance waveform that has already been saved in ASCII format. It uses the current real-time period to determine the length of the trial, sampling one row from the ASCII file at each time step. If you use it with the Spike Detector module, you can view a raster plot in real-time of spike times for each trial. Simply use the connector module to send the command signals from the detector to this module.  
+This module applies a conductance waveform that has already been saved in ASCII format. It uses the current real-time period to determine the length of the trial, sampling one row from the ASCII file at each time step.  
+
+If you use it with the Spike Detector module, you can view a raster plot in real-time of spike times for each trial. Simply use the connector module to send the command signals from the spike detector to the spike state channel in this module.  
 <!--end-->
 
 ####Input Channels
@@ -21,7 +23,7 @@ This module applies a conductance waveform that has already been saved in ASCII 
 2. Reversal Potential (mV) : reversal pot. of artificial conductance
 3. Gain : gain multiplied agains conductance
 4. Wait time (s) : time between trials of applied artificial conductance
-5. Holding Current : current to inject while waiting between trials
+5. Holding Current (nA) : current to inject while waiting between trials
 6. Repeat : number of trials to run
 
 ####States

@@ -17,9 +17,11 @@
  */
 
 /*
- * DClampFile applies a conductance waveform that has already been saved in ASCII format. It uses the current
- * real-time period to determine the length of the trial, sampling one row from the ASCII file at each time step.
- * If you use it with the SpikeDetect module, you can view a raster plot in real-time of spike times for each trial.
+ * DClampFile applies a conductance waveform that has already been saved in 
+ * ASCII format. It uses the current real-time period to determine the length 
+ * of the trial, sampling one row from the ASCII file at each time step. If 
+ * you use it with the Spike Detector module, you can view a raster plot in 
+ * real-time of spike times for each trial.
  */
 
 #include <default_gui_model.h>
@@ -56,6 +58,7 @@ class DClamp : public DefaultGUIModel {
 		double Vm;
 		double dt;
 		double length;
+	
 		// parameters
 		double wait;
 		double Ihold;
@@ -63,8 +66,10 @@ class DClamp : public DefaultGUIModel {
 		double Erev;
 		double gain;
 		QString gFile;
+	
 		// options
 		bool plotRaster;
+	
 		// bookkeeping
 		double totaltime;
 		std::vector<double> wave; // conductance waveform
@@ -74,9 +79,11 @@ class DClamp : public DefaultGUIModel {
 		int spikecount;
 		double spikestate;
 		int idx;
+	
 		// plotting
 		double yrangemin;
 		double yrangemax;
+	
 		// QT components
 		ScatterPlot *rplot;
 
