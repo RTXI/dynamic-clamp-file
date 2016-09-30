@@ -308,8 +308,9 @@ void DClamp::exportSVG() {
 	if ( !fileName.isEmpty() ) {
 		QSvgGenerator generator;
 		generator.setFileName(fileName);
-		generator.setSize(QSize(800, 600));
-		rplot->print(generator);
+		// generator.setSize(QSize(800, 600));
+		QwtPlotRenderer renderer;
+		renderer.renderTo(rplot, generator);
 	}
 #endif
 }
