@@ -7,7 +7,7 @@ HEADERS = dynamic-clamp-file.h\
 SOURCES = dynamic-clamp-file.cpp \
           moc_dynamic-clamp-file.cpp\
 
-LIBS = -lqwt -lrtplot
+LIBS = -lqwt-qt5 -lrtplot
 
 ### Do not edit below this line ###
 
